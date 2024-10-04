@@ -3,90 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Task Assistant</title>
+    <title>Pro Enhanced AI Task Assistant</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #f4f7f9;
         }
-
+        .container-fluid {
+            height: 100%;
+            padding: 0;
+        }
+        #notes-section, #chat-section {
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
         #notes-section {
             width: 60%;
             float: left;
             padding: 20px;
             border-right: 2px solid #ddd;
-            height: 90vh;
-            overflow-y: auto;
+            background-color: #ffffff;
         }
-
         #chat-section {
-            width: 35%;
+            width: 40%;
             float: right;
             padding: 20px;
-            height: 90vh;
             position: relative;
-            transition: width 0.3s ease;
-        }
-
-        #chat-box {
             background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            padding: 15px;
-            display: block;
-            transition: height 0.3s ease, opacity 0.3s ease;
         }
-
-        #hide-btn {
+        #chat-box {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            height: calc(100% - 40px);
+            overflow-y: auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        #hide-btn, #open-btn {
             position: absolute;
             top: 10px;
             right: 10px;
             cursor: pointer;
+            z-index: 1000;
         }
-
         .hidden {
-            height: 40px;
-            opacity: 0;
-            visibility: hidden;
+            width: 60px !important;
         }
-
-        #open-btn {
+        .hidden #chat-box {
             display: none;
-            cursor: pointer;
         }
-
         #result {
             margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #f4f7f9;
         }
-
         .custom-input {
             display: none;
         }
-
         .form-control, .form-control-lg {
             margin-bottom: 15px;
+        }
+        .inserted-content {
+            background-color: #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .btn-custom {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        .btn-custom:hover {
+            background-color: #3a7bc8;
+        }
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+        }
+        @media (max-width: 768px) {
+            #notes-section, #chat-section {
+                width: 100%;
+                float: none;
+            }
+            #chat-section {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 60vh;
+                z-index: 1000;
+            }
+            .hidden {
+                height: 40px !important;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container-fluid">
         <div id="notes-section">
-            <h2>Notes Section</h2>
+            <h2><i class="fas fa-sticky-note"></i> Notes</h2>
             <div id="notes-content"></div>
         </div>
 
         <div id="chat-section">
             <div id="chat-box">
-                <button id="hide-btn" class="btn btn-warning">Hide</button>
+                <button id="hide-btn" class="btn btn-warning"><i class="fas fa-chevron-down"></i></button>
                 <form id="taskForm">
-                    <h3>AI Chat Assistant</h3>
+                    <h3><i class="fas fa-robot"></i> AI Chat Assistant</h3>
                     <div class="form-group">
-                        <label for="task">Task/Question:</label>
+                        <label for="task"><i class="fas fa-tasks"></i> Task/Question:</label>
                         <input type="text" class="form-control" id="task" name="task" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="persona">Persona:</label>
+                        <label for="persona"><i class="fas fa-user-circle"></i> Persona:</label>
                         <select id="personaSelect" class="form-control" name="persona">
                             <option value="coding assistant">Coding Assistant</option>
                             <option value="content writer">Content Writer</option>
@@ -97,7 +141,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="format">Output Format:</label>
+                        <label for="format"><i class="fas fa-file-alt"></i> Output Format:</label>
                         <select id="formatSelect" class="form-control" name="format">
                             <option value="essay">Essay</option>
                             <option value="list">List</option>
@@ -108,7 +152,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="style">Tone/Style:</label>
+                        <label for="style"><i class="fas fa-pen-fancy"></i> Tone/Style:</label>
                         <select id="styleSelect" class="form-control" name="style">
                             <option value="formal">Formal</option>
                             <option value="informal">Informal</option>
@@ -118,7 +162,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="detail">Detail Level:</label>
+                        <label for="detail"><i class="fas fa-layer-group"></i> Detail Level:</label>
                         <select id="detailSelect" class="form-control" name="detail">
                             <option value="basic">Basic</option>
                             <option value="intermediate">Intermediate</option>
@@ -129,21 +173,21 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="size">Output Size (in words):</label>
+                        <label for="size"><i class="fas fa-text-width"></i> Output Size (in words):</label>
                         <input type="number" id="size" class="form-control" name="size" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="additional">Additional Instructions:</label>
+                        <label for="additional"><i class="fas fa-info-circle"></i> Additional Instructions:</label>
                         <textarea id="additional" class="form-control" name="additional" rows="3"></textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-lg btn-block">Submit</button>
+                    <button type="submit" class="btn btn-custom btn-lg btn-block"><i class="fas fa-paper-plane"></i> Submit</button>
                 </form>
 
                 <div id="result" class="alert mt-4" role="alert"></div>
                 <div id="adjustments" style="display:none;">
-                    <label for="rewrite">Rewrite:</label>
+                    <label for="rewrite"><i class="fas fa-sync-alt"></i> Rewrite:</label>
                     <select id="rewriteSelect" class="form-control">
                         <option value="">Select an option</option>
                         <option value="Improve it">Improve it</option>
@@ -151,7 +195,7 @@
                         <option value="Make it concise">Make it concise</option>
                         <option value="Example Explanation">Explain with an example</option>
                     </select>
-                    <label for="tone">Adjust tone:</label>
+                    <label for="tone"><i class="fas fa-volume-up"></i> Adjust tone:</label>
                     <select id="toneSelect" class="form-control">
                         <option value="">Select an option</option>
                         <option value="Make it direct">Make it direct</option>
@@ -159,56 +203,60 @@
                         <option value="Make it inspirational">Make it inspirational</option>
                         <option value="Sound confident">Sound confident</option>
                     </select>
-                    <button id="adjust-btn" class="btn btn-info mt-2">Adjust</button>
+                    <button id="adjust-btn" class="btn btn-info mt-2"><i class="fas fa-sliders-h"></i> Adjust</button>
                 </div>
-                <button id="insert-btn" class="btn btn-success mt-2" style="display:none;">Insert</button>
+                <button id="insert-btn" class="btn btn-success mt-2" style="display:none;"><i class="fas fa-plus-circle"></i> Insert into Notes</button>
             </div>
-            <button id="open-btn" class="btn btn-success">Open chat box</button>
+            <button id="open-btn" class="btn btn-success" style="display:none;"><i class="fas fa-chevron-up"></i></button>
         </div>
     </div>
 
     <script>
         const hideBtn = document.getElementById('hide-btn');
-        const chatBox = document.getElementById('chat-box');
+        const chatSection = document.getElementById('chat-section');
         const openBtn = document.getElementById('open-btn');
         const insertBtn = document.getElementById('insert-btn');
         const notesContent = document.getElementById('notes-content');
         const adjustments = document.getElementById('adjustments');
 
         hideBtn.addEventListener('click', () => {
-            chatBox.classList.add('hidden');
+            chatSection.classList.add('hidden');
             openBtn.style.display = 'block';
         });
 
         openBtn.addEventListener('click', () => {
-            chatBox.classList.remove('hidden');
+            chatSection.classList.remove('hidden');
             openBtn.style.display = 'none';
         });
 
         document.getElementById('taskForm').addEventListener('submit', async (event) => {
             event.preventDefault();
-            const task = document.getElementById('task').value;
-            const persona = document.getElementById('personaSelect').value;
-            const format = document.getElementById('formatSelect').value;
-            const style = document.getElementById('styleSelect').value;
-            const detail = document.getElementById('detailSelect').value;
-            const size = document.getElementById('size').value;
-            const additional = document.getElementById('additional').value;
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
 
-            const response = await fetch('/process_task', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ task, persona, format, style, detail, size, additional })
-            });
+            try {
+                const response = await fetch('/process_task', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
 
-            const result = await response.json();
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
 
-            if (result.answer) {
-                document.getElementById('result').innerText = result.answer;
-                adjustments.style.display = 'block'; 
-                insertBtn.style.display = 'block'; 
-            } else {
-                document.getElementById('result').innerText = result.error;
+                const result = await response.json();
+
+                if (result.answer) {
+                    document.getElementById('result').innerHTML = `<pre>${result.answer}</pre>`;
+                    adjustments.style.display = 'block'; 
+                    insertBtn.style.display = 'block'; 
+                } else {
+                    document.getElementById('result').innerHTML = `<p class="text-danger">${result.error}</p>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = `<p class="text-danger">An error occurred. Please try again.</p>`;
             }
         });
 
@@ -219,46 +267,57 @@
 
             const adjustmentPrompt = `Adjust the following response based on the options:\n\nResponse: "${originalResult}"\nRewrite Option: "${rewriteOption}"\nTone Option: "${toneOption}"\n`;
 
-            const response = await fetch('/process_task', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ task: adjustmentPrompt, persona: "adjuster" })
-            });
+            try {
+                const response = await fetch('/process_task', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ task: adjustmentPrompt, persona: "adjuster" })
+                });
 
-            const result = await response.json();
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
 
-            if (result.answer) {
-                document.getElementById('result').innerText = result.answer; 
-            } else {
-                document.getElementById('result').innerText = result.error;
+                const result = await response.json();
+
+                if (result.answer) {
+                    document.getElementById('result').innerHTML = `<pre>${result.answer}</pre>`; 
+                } else {
+                    document.getElementById('result').innerHTML = `<p class="text-danger">${result.error}</p>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = `<p class="text-danger">An error occurred while adjusting. Please try again.</p>`;
             }
         });
 
         insertBtn.addEventListener('click', () => {
             const contentToInsert = document.getElementById('result').innerText;
-            notesContent.innerHTML += `<div>${contentToInsert}</div>`;
+            const newContent = document.createElement('div');
+            newContent.className = 'inserted-content';
+            newContent.innerHTML = `<pre>${contentToInsert}</pre>`;
+            notesContent.appendChild(newContent);
+            
+            newContent.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            
+            newContent.style.backgroundColor = '#90EE90';
+            setTimeout(() => {
+                newContent.style.backgroundColor = '#e9ecef';
+            }, 300);
         });
 
-       
-        const personaSelect = document.getElementById('personaSelect');
-        personaSelect.addEventListener('change', function() {
-            document.getElementById('personaOtherInput').style.display = this.value === 'other' ? 'block' : 'none';
-        });
+        const setupCustomInput = (selectId, inputId) => {
+            const select = document.getElementById(selectId);
+            const input = document.getElementById(inputId);
+            select.addEventListener('change', function() {
+                input.style.display = this.value === 'other' ? 'block' : 'none';
+            });
+        };
 
-        const formatSelect = document.getElementById('formatSelect');
-        formatSelect.addEventListener('change', function() {
-            document.getElementById('formatOtherInput').style.display = this.value === 'other' ? 'block' : 'none';
-        });
-
-        const styleSelect = document.getElementById('styleSelect');
-        styleSelect.addEventListener('change', function() {
-            document.getElementById('styleOtherInput').style.display = this.value === 'other' ? 'block' : 'none';
-        });
-
-        const detailSelect = document.getElementById('detailSelect');
-        detailSelect.addEventListener('change', function() {
-            document.getElementById('detailOtherInput').style.display = this.value === 'other' ? 'block' : 'none';
-        });
+        setupCustomInput('personaSelect', 'personaOtherInput');
+        setupCustomInput('formatSelect', 'formatOtherInput');
+        setupCustomInput('styleSelect', 'styleOtherInput');
+        setupCustomInput('detailSelect', 'detailOtherInput');
     </script>
 </body>
 </html>
