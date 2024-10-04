@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Task Assistant</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        #notes-section {
+            width: 60%;
+            float: left;
+            padding: 20px;
+            border-right: 2px solid #ddd;
+            height: 90vh;
+            overflow-y: auto;
+        }
+
+        #chat-section {
+            width: 35%;
+            float: right;
+            padding: 20px;
+            height: 90vh;
+            position: relative;
+            transition: width 0.3s ease;
+        }
+
+        #chat-box {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 15px;
+            display: block;
+            transition: height 0.3s ease, opacity 0.3s ease;
+        }
+
+        #hide-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+
+        .hidden {
+            height: 40px;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        #open-btn {
+            display: none;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+
+        .custom-input {
+            display: none;
+        }
+
+        .form-control, .form-control-lg {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div id="notes-section">
+            <h2>Notes Section</h2>
+            <div id="notes-content"></div>
+        </div>
+
+        <div id="chat-section">
+            <div id="chat-box">
+                <button id="hide-btn" class="btn btn-warning">Hide</button>
+                <form id="taskForm">
+                    <h3>AI Chat Assistant</h3>
+                    <div class="form-group">
+                        <label for="task">Task/Question:</label>
+                        <input type="text" class="form-control" id="task" name="task" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="persona">Persona:</label>
+                        <select id="personaSelect" class="form-control" name="persona">
+                            <option value="coding assistant">Coding Assistant</option>
+                            <option value="content writer">Content Writer</option>
+                            <option value="student">Student</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <input type="text" id="personaOtherInput" class="custom-input form-control" placeholder="Enter custom persona">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="format">Output Format:</label>
+                        <select id="formatSelect" class="form-control" name="format">
+                            <option value="essay">Essay</option>
+                            <option value="list">List</option>
+                            <option value="table">Table</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <input type="text" id="formatOtherInput" class="custom-input form-control" placeholder="Enter custom format">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="style">Tone/Style:</label>
+                        <select id="styleSelect" class="form-control" name="style">
+                            <option value="formal">Formal</option>
+                            <option value="informal">Informal</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <input type="text" id="styleOtherInput" class="custom-input form-control" placeholder="Enter custom style">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="detail">Detail Level:</label>
+                        <select id="detailSelect" class="form-control" name="detail">
+                            <option value="basic">Basic</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="expert">Expert</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <input type="text" id="detailOtherInput" class="custom-input form-control" placeholder="Enter custom detail level">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="size">Output Size (in words):</label>
+                        <input type="number" id="size" class="form-control" name="size" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="additional">Additional Instructions:</label>
+                        <textarea id="additional" class="form-control" name="additional" rows="3"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg btn-block">Submit</button>
+                </form>
+
+                <div id="result" class="alert mt-4" role="alert"></div>
+                <div id="adjustments" style="display:none;">
+                    <label for="rewrite">Rewrite:</label>
+                    <select id="rewriteSelect" class="form-control">
+                        <option value="">Select an option</option>
+                        <option value="Improve it">Improve it</option>
+                        <option value="Make it more descriptive">Make it more descriptive</option>
+                        <option value="Make it concise">Make it concise</option>
+                        <option value="Example Explanation">Explain with an example</option>
+                    </select>
+                    <label for="tone">Adjust tone:</label>
+                    <select id="toneSelect" class="form-control">
+                        <option value="">Select an option</option>
+                        <option value="Make it direct">Make it direct</option>
+                        <option value="Sound formal">Sound formal</option>
+                        <option value="Make it inspirational">Make it inspirational</option>
+                        <option value="Sound confident">Sound confident</option>
+                    </select>
+                    <button id="adjust-btn" class="btn btn-info mt-2">Adjust</button>
+                </div>
+                <button id="insert-btn" class="btn btn-success mt-2" style="display:none;">Insert</button>
+            </div>
+            <button id="open-btn" class="btn btn-success">Open chat box</button>
+        </div>
+    </div>
+
+    <script>
+        const hideBtn = document.getElementById('hide-btn');
+        const chatBox = document.getElementById('chat-box');
+        const openBtn = document.getElementById('open-btn');
+        const insertBtn = document.getElementById('insert-btn');
+        const notesContent = document.getElementById('notes-content');
+        const adjustments = document.getElementById('adjustments');
+
+        hideBtn.addEventListener('click', () => {
+            chatBox.classList.add('hidden');
+            openBtn.style.display = 'block';
+        });
+
+        openBtn.addEventListener('click', () => {
+            chatBox.classList.remove('hidden');
+            openBtn.style.display = 'none';
+        });
+
+        document.getElementById('taskForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const task = document.getElementById('task').value;
+            const persona = document.getElementById('personaSelect').value;
+            const format = document.getElementById('formatSelect').value;
+            const style = document.getElementById('styleSelect').value;
+            const detail = document.getElementById('detailSelect').value;
+            const size = document.getElementById('size').value;
+            const additional = document.getElementById('additional').value;
+
+            const response = await fetch('/process_task', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ task, persona, format, style, detail, size, additional })
+            });
+
+            const result = await response.json();
+
+            if (result.answer) {
+                document.getElementById('result').innerText = result.answer;
+                adjustments.style.display = 'block'; 
+                insertBtn.style.display = 'block'; 
+            } else {
+                document.getElementById('result').innerText = result.error;
+            }
+        });
+
+        document.getElementById('adjust-btn').addEventListener('click', async () => {
+            const originalResult = document.getElementById('result').innerText;
+            const rewriteOption = document.getElementById('rewriteSelect').value;
+            const toneOption = document.getElementById('toneSelect').value;
+
+            const adjustmentPrompt = `Adjust the following response based on the options:\n\nResponse: "${originalResult}"\nRewrite Option: "${rewriteOption}"\nTone Option: "${toneOption}"\n`;
+
+            const response = await fetch('/process_task', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ task: adjustmentPrompt, persona: "adjuster" })
+            });
+
+            const result = await response.json();
+
+            if (result.answer) {
+                document.getElementById('result').innerText = result.answer; 
+            } else {
+                document.getElementById('result').innerText = result.error;
+            }
+        });
+
+        insertBtn.addEventListener('click', () => {
+            const contentToInsert = document.getElementById('result').innerText;
+            notesContent.innerHTML += `<div>${contentToInsert}</div>`;
+        });
+
+       
+        const personaSelect = document.getElementById('personaSelect');
+        personaSelect.addEventListener('change', function() {
+            document.getElementById('personaOtherInput').style.display = this.value === 'other' ? 'block' : 'none';
+        });
+
+        const formatSelect = document.getElementById('formatSelect');
+        formatSelect.addEventListener('change', function() {
+            document.getElementById('formatOtherInput').style.display = this.value === 'other' ? 'block' : 'none';
+        });
+
+        const styleSelect = document.getElementById('styleSelect');
+        styleSelect.addEventListener('change', function() {
+            document.getElementById('styleOtherInput').style.display = this.value === 'other' ? 'block' : 'none';
+        });
+
+        const detailSelect = document.getElementById('detailSelect');
+        detailSelect.addEventListener('change', function() {
+            document.getElementById('detailOtherInput').style.display = this.value === 'other' ? 'block' : 'none';
+        });
+    </script>
+</body>
+</html>
